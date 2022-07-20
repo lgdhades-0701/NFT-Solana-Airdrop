@@ -1,14 +1,14 @@
 [features]
 seeds = false
 
-[programs.localnet]
+[programs.devnet]
 airdrop = "ANQgF7ZDZNzU9g4x3La9kq5CBTpzv2MgxQ8E8BPSFE7A"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/home/devlancer/.config/solana/id.json"
 
 [scripts]
