@@ -46,7 +46,9 @@ const getMasterEdition = async (
   )[0];
 };
 
-const mintKey: anchor.web3.Keypair = anchor.web3.Keypair.generate();
+const mintKey: anchor.web3.PublicKey = new anchor.web3.PublicKey(
+  "2T6sdfxViTSow8pxeDkVb2C2J6Kj2XtYDWjgbGTgN3Nb"
+);
 
 describe("./airdrop", () => {
   // Configure the client to use the local cluster.
@@ -70,7 +72,7 @@ describe("./airdrop", () => {
 
   it("Prepare associate token and mint", async () => {
     const NftTokenAccount = await getAssociatedTokenAddress(
-      mintKey.publicKey,
+      mintKey,
       wallet.publicKey
     );
 
@@ -79,13 +81,13 @@ describe("./airdrop", () => {
     const mint_tx = new anchor.web3.Transaction().add(
       anchor.web3.SystemProgram.createAccount({
         fromPubkey: wallet.publicKey,
-        newAccountPubkey: mintKey.publicKey,
+        newAccountPubkey: mintKey,
         space: MINT_SIZE,
         programId: TOKEN_PROGRAM_ID,
         lamports,
       }),
       createInitializeMintInstruction(
-        mintKey.publicKey,
+        mintKey,
         0,
         wallet.publicKey,
         wallet.publicKey
@@ -94,25 +96,25 @@ describe("./airdrop", () => {
         wallet.publicKey,
         NftTokenAccount,
         wallet.publicKey,
-        mintKey.publicKey
+        mintKey
       )
     );
-    const res = await program.provider.sendAndConfirm(mint_tx, [mintKey], {commitment: "confirmed"});
+    const res = await program.provider.sendAndConfirm(mint_tx, [wallet.payer], {commitment: "confirmed"});
 
     console.log(
-      await program.provider.connection.getParsedAccountInfo(mintKey.publicKey)
+      await program.provider.connection.getParsedAccountInfo(mintKey)
     );
     console.log("Account: ", res);
-    console.log("Mint key: ", mintKey.publicKey.toString());
+    console.log("Mint key: ", mintKey.toString());
     console.log("User: ", wallet.publicKey.toString());
-    const metadataAddress = await getMetadata(mintKey.publicKey);
-    const masterEdition = await getMasterEdition(mintKey.publicKey);
+    const metadataAddress = await getMetadata(mintKey);
+    const masterEdition = await getMasterEdition(mintKey);
     console.log("Metadata address: ", metadataAddress.toBase58());
     console.log("MasterEdition: ", masterEdition.toBase58());
 
     console.log({
       mintAuthority: wallet.publicKey.toBase58(),
-      mint: mintKey.publicKey.toBase58(),
+      mint: mintKey.toBase58(),
       tokenAccount: NftTokenAccount.toBase58(),
       tokenProgram: TOKEN_PROGRAM_ID.toBase58(),
       metadata: metadataAddress.toBase58(),
@@ -124,13 +126,13 @@ describe("./airdrop", () => {
     })
 
     const tx = await program.methods.mintNft(
-      mintKey.publicKey,
+      mintKey,
       "https://arweave.net/y5e5DJsiwH0s_ayfMwYk-SnrZtVZzHLQDSTZ5dNRUHA",
       "NFT Title",
     )
       .accounts({
         mintAuthority: wallet.publicKey,
-        mint: mintKey.publicKey,
+        mint: mintKey,
         tokenAccount: NftTokenAccount,
         tokenProgram: TOKEN_PROGRAM_ID,
         metadata: metadataAddress,

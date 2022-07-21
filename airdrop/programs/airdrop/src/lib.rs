@@ -22,6 +22,7 @@ pub mod airdrop {
             to: ctx.accounts.token_account.to_account_info(),
             authority: ctx.accounts.payer.to_account_info(),
         };
+
         msg!("CPI Accounts Assigned");
         let cpi_program = ctx.accounts.token_program.to_account_info();
         msg!("CPI Program Assigned");
